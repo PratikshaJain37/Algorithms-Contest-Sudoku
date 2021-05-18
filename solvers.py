@@ -4,8 +4,9 @@ Author: Pratiksha Jain
 '''
 import pygame
 import time
-from helpers import find_empty, valid
-from gui_helpers import update_time
+from backtrack import Grid, Cube
+from helpers import find_empty, valid, get_board, update_time, solveGraphColoring, getMappedMatrix, printBoard
+from graph import SudokuConnections
 
 
 def backtrack_gui(bo, start):
@@ -29,10 +30,11 @@ def backtrack_gui(bo, start):
 
             # gui
             update_time(bo.win, time=round(time.time() - start))
-            bo.cubes[row][col].draw_change(bo.win, True)
+            bo.cubes[row][col].draw_change(bo.win, color=(0,255,0))
             pygame.display.update()
             pygame.time.delay(100)
-
+            
+            # recursion
             if backtrack_gui(bo, start):
                 return True
 
@@ -41,8 +43,18 @@ def backtrack_gui(bo, start):
             
             # gui
             update_time(bo.win, time=round(time.time() - start))
-            bo.cubes[row][col].draw_change(bo.win, False)
+            bo.cubes[row][col].draw_change(bo.win, color=(255,0,0))
             pygame.display.update()
             pygame.time.delay(100)
 
     return False
+
+def optimize_backtracking():
+    pass
+
+def graph_coloring_gui(s, start):
+
+    sudokuGraph = SudokuConnections()
+    mappedGrid = getMappedMatrix()
+    solveGraphColoring(s, sudokuGraph,mappedGrid,s.width, s.height, s.win, m=9)
+        

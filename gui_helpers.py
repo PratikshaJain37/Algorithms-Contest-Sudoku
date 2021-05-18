@@ -3,8 +3,7 @@ Algorithms Contest: Sudoku - GUI Helpers Script
 Author: Pratiksha Jain
 '''
 
-import pygame
-pygame.font.init()
+
 
 
 def format_time(secs):
