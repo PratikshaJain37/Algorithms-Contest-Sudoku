@@ -73,7 +73,8 @@ class Cube:
 
         text = fnt.render(str(self.value), 1, (0, 0, 0))
         win.blit(text, (x + (gap / 2 - text.get_width() / 2), y + (gap / 2 - text.get_height() / 2)))
-        pygame.draw.rect(win, colour, (x, y, gap, gap), 3)
+        
+        pygame.draw.rect(win, colour, (x+2, y+2, gap-4, gap-4), 3)
         
 
     def set(self, val):

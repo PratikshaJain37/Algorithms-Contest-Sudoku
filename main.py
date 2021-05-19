@@ -5,7 +5,7 @@ Author: Pratiksha Jain
 
 import pygame
 import time
-from helpers import get_board, update_time
+from helpers import get_board, update_time, initializeBoard
 from solvers import backtrack_gui, graph_coloring_gui
 from backtrack import Grid
 
@@ -43,7 +43,10 @@ def main():
                     if method == 'backtrack':
                         backtrack_gui(board, start)
                     elif method == 'graph':
-                        graph_coloring_gui(board, start)
+                        given, sudokuGraph = initializeBoard(board)
+                        graph_coloring_gui(board, sudokuGraph,0,given, start, m=9)
+
+
                     win.fill((255,255,255))
 
         # draw grid

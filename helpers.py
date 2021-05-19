@@ -4,13 +4,13 @@ Author: Pratiksha Jain
 '''
 import pygame
 from backtrack import Grid, Cube
+from graph import SudokuConnections
 import time
 pygame.font.init()
 
-colour_dict = {0:(255,0,0), 1:(0,25,0), 2:(0,50,0), 3:(0,75,0), 4:(0,100,0),5:(0,125,0), 6:(0,150,0), 7:(0,175,0), 8:(0,200,0), 9:(0,225,0)}
+colour_dict = {0:(255,0,0), 1:(0,95,115), 2:(5,121,133), 3:(10,147,150), 4:(148,210,189),5:(191,213,178), 6:(233,216,166), 7:(238,155,0), 8:(220,129,1), 9:(124,151,75)}
 
 
-# 
 def get_board():
     board = [
         [7, 8, 0, 4, 0, 0, 1, 2, 0],
@@ -77,128 +77,37 @@ def update_time(win, time):
 
 
 # graph helpers functions 
-def printBoard(s) : 
-        model = s.model
-        print("    1 2 3     4 5 6     7 8 9")
-        for i in range(9) : 
-            if i%3 == 0  :#and i != 0:
-                print("  - - - - - - - - - - - - - - ")
 
-            for j in range(9) : 
-                if j %3 == 0 :#and j != 0 : 
-                    print(" |  ", end = "")
-                if j == 8 :
-                    print(model[i][j]," | ", i+1)
-                else : 
-                    print(f"{ model[i][j] } ", end="")
-        print("  - - - - - - - - - - - - - - ")
+def initializeBoard(s):
 
-def getMappedMatrix() : 
-    matrix = [[0 for cols in range(9)] 
-    for rows in range(9)]
+    sudokuGraph = SudokuConnections()
+    color = [[Cube(s.board[i][j], i,j, s.width, s.height) for j in range(9)] for i in range (9)]
 
-    count = 1
-    for rows in range(9) : 
-        for cols in range(9):
-            matrix[rows][cols] = count
-            count+=1
-    return matrix
+    given = []
+    for row in range(9):
+        for col in range(9):
+            if s.board[row][col] != 0:
+                given.append(row*9+col)
+                
+                # gui
+                color[row][col].draw_change(s.win, colour_dict[s.board[row][col]])    
 
-    
+    s.cubes = color
 
-def graphColoringInitializeColor(SudokuBoard, sudokuGraph, mappedGrid):
-    """
-    fill the already given colors
-    """
-    color = [0] * (sudokuGraph.graph.totalV+1)
-    given = [] # list of all the ids whos value is already given. Thus cannot be changed
-    for row in range(len(SudokuBoard.board)) : 
-        for col in range(len(SudokuBoard.board[row])) : 
-            if SudokuBoard.board[row][col] != 0 : 
-                #first get the idx of the position
-                idx = mappedGrid[row][col]
-                #update the color
-                color[idx] = SudokuBoard.board[row][col] # this is the main imp part
-                given.append(idx)
-    
-    return color, given
+    return given, sudokuGraph
 
-def solveGraphColoring(SudokuBoard,sudokuGraph,mappedGrid, width, height, win,start, m=9) : 
 
-    color, given = graphColoringInitializeColor(SudokuBoard, sudokuGraph, mappedGrid)
-
-    color = [[Cube(color[i*9+j+1], i,j,width,height) for j in range(9)] for i in range (9)]
-
-    """
-    for i in range(9):
-        for j in range(9):
-            print(color[i][j].value, end="")
-    """
-    
-    if graphColorUtility(SudokuBoard, sudokuGraph,m, color, 1, given,start=start, win=win) is None :
-        print(":(")
-        return False
-    #print(color)
-
-    update_gui_board(SudokuBoard, color, start, win)
-    
-    return True
-
-def update_gui_board(SudokuBoard, color,start,win, width=540, height=600):
-
-    #color = [[Cube(color[i*9+j+1], i,j,width,height) for j in range(9)] for i in range (9)] #
-
-    SudokuBoard.cubes = color
-    SudokuBoard.update_model()
-    SudokuBoard.draw()
-    
-    #printBoard(SudokuBoard)
-    update_time(win, round(time.time() - start))
-    pygame.display.update()
-    pygame.time.delay(200)
-    
-    
-
-def graphColorUtility(SudokuBoard,sudokuGraph, m, color, v, given, start, win,width=540, height=600) :
-
-    #print('1')
-    if v == sudokuGraph.graph.totalV+1  : 
-        return True
-    for c in range(1, m+1) : 
-        if isSafe2Color(sudokuGraph, v, color, c, given) == True :
-            # draw_change
-            color[(v-1)//9][(v-1)%9].set(c)
-            #color[v] = c
-            # color is list of cubes
-            #color = [[Cube(color[i*9+j+1], i,j,width,height) for i in range(9)] for j in range (9)]
-            color[(v-1)//9][(v-1)%9].draw_change(win, colour=colour_dict[c]) 
-            
-            update_gui_board(SudokuBoard, color, start, win)
-            
-            if graphColorUtility(SudokuBoard, sudokuGraph,m, color, v+1, given, start, win) : 
-                return True
-        if v not in given : 
-            # draw_change but with a different colour
-
-            color[(v-1)//9][(v-1)%9].set(0)
-            color[(v-1)//9][(v-1)%9].draw_change(win, colour=colour_dict[c]) 
-            pygame.display.update()
-            #update_gui_board(SudokuBoard, color, start, win)
-
-           
-        
-
+# validating function
 def isSafe2Color(sudokuGraph, v, color, c, given) : 
     
-    if v in given and color[(v-1)//9][(v-1)%9].value == c: 
+    if v in given and color[v//9][v%9].value == c: 
         return True
     elif v in given : 
         return False
-    #
-    for i in range(1, sudokuGraph.graph.totalV+1) :
-        #print(i)
-        #print((i-1)//9,(i-1)%9)
-        if color[(i-1)//9][(i-1)%9].value == c and sudokuGraph.graph.isNeighbour(v, i) :
+
+    for i in range(0, sudokuGraph.graph.totalV) :
+ 
+        if color[i//9][i%9].value == c and sudokuGraph.graph.isNeighbour(v+1, i+1) :
             return False
     return True
 
