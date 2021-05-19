@@ -8,10 +8,9 @@ from backtrack import Grid, Cube
 from helpers import find_empty, valid, get_board, update_time, isSafe2Color, colour_dict
 from graph import SudokuConnections
 
-#colour_dict = {0:(255,0,0), 1:(0,95,115), 2:(5,121,133), 3:(10,147,150), 4:(148,210,189),5:(191,213,178), 6:(233,216,166), 7:(238,155,0), 8:(220,129,1), 9:(124,151,75)}
 
 
-def backtrack_gui(bo, start):
+def backtrack_gui(bo, start, fast=False):
 
     # updating model
     bo.update_model()
@@ -34,10 +33,11 @@ def backtrack_gui(bo, start):
             update_time(bo.win, time=round(time.time() - start))
             bo.cubes[row][col].draw_change(bo.win, colour=(0,255,0))
             pygame.display.update()
-            pygame.time.delay(100)
+            if not fast:
+                pygame.time.delay(100)
             
             # recursion
-            if backtrack_gui(bo, start):
+            if backtrack_gui(bo, start, fast):
                 return True
 
             bo.model[row][col] = 0
@@ -47,14 +47,15 @@ def backtrack_gui(bo, start):
             update_time(bo.win, time=round(time.time() - start))
             bo.cubes[row][col].draw_change(bo.win, colour=(255,0,0))
             pygame.display.update()
-            pygame.time.delay(100)
+            if not fast:
+                pygame.time.delay(100)
 
     return False
 
 def optimize_backtracking():
     pass
 
-def graph_coloring_gui(s, sudokuGraph,v,given, start, m=9):
+def graph_coloring_gui(s, sudokuGraph,v,given, start, fast=False, m=9):
 
     color = s.cubes
     win = s.win
@@ -70,10 +71,11 @@ def graph_coloring_gui(s, sudokuGraph,v,given, start, m=9):
             color[v//9][v%9].draw_change(win, colour=colour_dict[c]) 
             update_time(win, round(time.time() - start))
             pygame.display.update()
-            pygame.time.delay(50)
+            if not fast:
+                pygame.time.delay(50)
             
             # recursion
-            if graph_coloring_gui(s, sudokuGraph, v+1, given, start) : 
+            if graph_coloring_gui(s, sudokuGraph, v+1, given, start, fast) : 
                 return True
 
         if v not in given : 
@@ -84,5 +86,6 @@ def graph_coloring_gui(s, sudokuGraph,v,given, start, m=9):
             color[v//9][v%9].draw_change(win, colour=colour_dict[0]) 
             update_time(win, round(time.time() - start))
             pygame.display.update()
-            pygame.time.delay(50) 
+            if not fast:
+                pygame.time.delay(50)
         

@@ -13,7 +13,6 @@ class Grid:
         self.update_model()
         self.win = win
         
-
     def update_model(self, transpose=False):
         if transpose == False:
             self.model = [[self.cubes[i][j].value for j in range(self.cols)] for i in range(self.rows)]
@@ -35,6 +34,10 @@ class Grid:
         for i in range(self.rows):
             for j in range(self.cols):
                 self.cubes[i][j].draw(self.win)
+    
+    def copy(self):
+        new_grid = Grid(self.board, self.width, self.height, self.win)
+        return new_grid
 
 class Cube:
     rows = 9
@@ -79,4 +82,5 @@ class Cube:
 
     def set(self, val):
         self.value = val
+
 
