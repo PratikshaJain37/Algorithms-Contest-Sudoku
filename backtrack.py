@@ -14,8 +14,11 @@ class Grid:
         self.win = win
         
 
-    def update_model(self):
-        self.model = [[self.cubes[i][j].value for j in range(self.cols)] for i in range(self.rows)]
+    def update_model(self, transpose=False):
+        if transpose == False:
+            self.model = [[self.cubes[i][j].value for j in range(self.cols)] for i in range(self.rows)]
+        else:
+            self.model = [[self.cubes[j][i].value for j in range(self.cols)] for i in range(self.rows)]
 
     def draw(self):
         # Draw Grid Lines

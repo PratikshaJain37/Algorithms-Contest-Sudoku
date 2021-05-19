@@ -30,7 +30,7 @@ def backtrack_gui(bo, start):
 
             # gui
             update_time(bo.win, time=round(time.time() - start))
-            bo.cubes[row][col].draw_change(bo.win, color=(0,255,0))
+            bo.cubes[row][col].draw_change(bo.win, colour=(0,255,0))
             pygame.display.update()
             pygame.time.delay(100)
             
@@ -43,7 +43,7 @@ def backtrack_gui(bo, start):
             
             # gui
             update_time(bo.win, time=round(time.time() - start))
-            bo.cubes[row][col].draw_change(bo.win, color=(255,0,0))
+            bo.cubes[row][col].draw_change(bo.win, colour=(255,0,0))
             pygame.display.update()
             pygame.time.delay(100)
 
@@ -56,5 +56,7 @@ def graph_coloring_gui(s, start):
 
     sudokuGraph = SudokuConnections()
     mappedGrid = getMappedMatrix()
-    solveGraphColoring(s, sudokuGraph,mappedGrid,s.width, s.height, s.win, m=9)
+    printBoard(s)
+    solveGraphColoring(s, sudokuGraph,mappedGrid,s.width, s.height, s.win, start, m=9)
+    printBoard(s)
         

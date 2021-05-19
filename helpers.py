@@ -4,7 +4,10 @@ Author: Pratiksha Jain
 '''
 import pygame
 from backtrack import Grid, Cube
+import time
 pygame.font.init()
+
+colour_dict = {0:(255,0,0), 1:(0,25,0), 2:(0,50,0), 3:(0,75,0), 4:(0,100,0),5:(0,125,0), 6:(0,150,0), 7:(0,175,0), 8:(0,200,0), 9:(0,225,0)}
 
 
 # 
@@ -72,6 +75,8 @@ def update_time(win, time):
     win.fill((255,255,255),text_rect)
     win.blit(text, text_rect)
 
+
+# graph helpers functions 
 def printBoard(s) : 
         model = s.model
         print("    1 2 3     4 5 6     7 8 9")
@@ -118,64 +123,82 @@ def graphColoringInitializeColor(SudokuBoard, sudokuGraph, mappedGrid):
     
     return color, given
 
-def solveGraphColoring(SudokuBoard,sudokuGraph,mappedGrid, width, height, win, m=9) : 
+def solveGraphColoring(SudokuBoard,sudokuGraph,mappedGrid, width, height, win,start, m=9) : 
 
     color, given = graphColoringInitializeColor(SudokuBoard, sudokuGraph, mappedGrid)
 
-    #color = [[Cube(color[i*9+j+1], i,j,width,height) for i in range(9)] for j in range (9)]
+    color = [[Cube(color[i*9+j+1], i,j,width,height) for j in range(9)] for i in range (9)]
 
-    #color = Grid(color, width, height, win)
     """
     for i in range(9):
         for j in range(9):
             print(color[i][j].value, end="")
     """
     
-    if graphColorUtility(SudokuBoard, sudokuGraph, m =m, color=color, v =1, given=given) is None :
+    if graphColorUtility(SudokuBoard, sudokuGraph,m, color, 1, given,start=start, win=win) is None :
         print(":(")
         return False
     #print(color)
 
-    update_board(SudokuBoard, color, width, height)
+    update_gui_board(SudokuBoard, color, start, win)
     
     return True
 
-def update_board(SudokuBoard, color, width=540, height=600):
+def update_gui_board(SudokuBoard, color,start,win, width=540, height=600):
 
-    color = [[Cube(color[i*9+j+1], i,j,width,height) for i in range(9)] for j in range (9)]
+    #color = [[Cube(color[i*9+j+1], i,j,width,height) for j in range(9)] for i in range (9)] #
 
     SudokuBoard.cubes = color
     SudokuBoard.update_model()
     SudokuBoard.draw()
-    #pygame.time.delay(100)
+    
+    #printBoard(SudokuBoard)
+    update_time(win, round(time.time() - start))
+    pygame.display.update()
+    pygame.time.delay(200)
     
     
 
-def graphColorUtility(SudokuBoard,sudokuGraph, m, color, v, given,width=540, height=600) :
+def graphColorUtility(SudokuBoard,sudokuGraph, m, color, v, given, start, win,width=540, height=600) :
 
+    #print('1')
     if v == sudokuGraph.graph.totalV+1  : 
         return True
     for c in range(1, m+1) : 
         if isSafe2Color(sudokuGraph, v, color, c, given) == True :
             # draw_change
-            color[v] = c
-            update_board(SudokuBoard, color, width, height)
-            if graphColorUtility(SudokuBoard, sudokuGraph,m, color, v+1, given) : 
+            color[(v-1)//9][(v-1)%9].set(c)
+            #color[v] = c
+            # color is list of cubes
+            #color = [[Cube(color[i*9+j+1], i,j,width,height) for i in range(9)] for j in range (9)]
+            color[(v-1)//9][(v-1)%9].draw_change(win, colour=colour_dict[c]) 
+            
+            update_gui_board(SudokuBoard, color, start, win)
+            
+            if graphColorUtility(SudokuBoard, sudokuGraph,m, color, v+1, given, start, win) : 
                 return True
         if v not in given : 
             # draw_change but with a different colour
-            color[v] = 0
+
+            color[(v-1)//9][(v-1)%9].set(0)
+            color[(v-1)//9][(v-1)%9].draw_change(win, colour=colour_dict[c]) 
+            pygame.display.update()
+            #update_gui_board(SudokuBoard, color, start, win)
+
+           
         
 
 def isSafe2Color(sudokuGraph, v, color, c, given) : 
-
-    if v in given and color[v] == c: 
+    
+    if v in given and color[(v-1)//9][(v-1)%9].value == c: 
         return True
     elif v in given : 
         return False
-
+    #
     for i in range(1, sudokuGraph.graph.totalV+1) :
-        if color[i] == c and sudokuGraph.graph.isNeighbour(v, i) :
+        #print(i)
+        #print((i-1)//9,(i-1)%9)
+        if color[(i-1)//9][(i-1)%9].value == c and sudokuGraph.graph.isNeighbour(v, i) :
             return False
     return True
 
