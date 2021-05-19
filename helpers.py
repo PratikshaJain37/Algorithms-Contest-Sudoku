@@ -3,10 +3,13 @@ Algorithms Contest: Sudoku - Helpers Script
 Author: Pratiksha Jain
 '''
 import pygame
-from backtrack import Grid, Cube
 from graph import SudokuConnections
-import time
 pygame.font.init()
+from tensorflow import keras as keras
+import numpy as np
+from backtrack import Cube
+#from model import get_model
+#from scripts.data_preprocess import get_data
 
 colour_dict = {0:(255,0,0), 1:(0,95,115), 2:(5,121,133), 3:(10,147,150), 4:(148,210,189),5:(191,213,178), 6:(233,216,166), 7:(238,155,0), 8:(220,129,1), 9:(124,151,75)}
 
@@ -78,7 +81,7 @@ def update_time(win, time):
 
 # graph helpers functions 
 
-def initializeBoard(s):
+def initialize_graph_board(s):
 
     sudokuGraph = SudokuConnections()
     color = [[Cube(s.board[i][j], i,j, s.width, s.height) for j in range(9)] for i in range (9)]
@@ -110,5 +113,46 @@ def isSafe2Color(sudokuGraph, v, color, c, given) :
         if color[i//9][i%9].value == c and sudokuGraph.graph.isNeighbour(v+1, i+1) :
             return False
     return True
+
+
+# cnn helpers 
+
+def initialize_cnn_board(board):
+
+    game = board.model
+    game = np.array(game).reshape((9,9,1))
+    game = norm(game)
+    '''
+    x_train, x_test, y_train, y_test = get_data('sudoku_test.csv')
+    model = get_model()
+
+    adam = keras.optimizers.Adam(lr=.001)
+    model.compile(loss='sparse_categorical_crossentropy', optimizer=adam)
+
+    model.fit(x_train, y_train, batch_size=32, epochs=2)
+	'''
+    model = keras.models.load_model('model/sudoku.model')
+
+    return game, model
+
+def norm(a):
+    return (a/9)-.5
+
+def denorm(a):
+    return (a+.5)*9
+
+def cnn_gui(val,x,y,board, time,width=540, height=600):
+
+
+    temp_cube = Cube(val, x,y, width, height)
+    temp_cube.draw_change(board.win, (0,250,0))
+    update_time(board.win, time)
+    pygame.display.update()
+
+
+
+
+
+
 
 
